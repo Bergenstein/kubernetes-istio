@@ -1,0 +1,113 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: my-networkpolicy
+  namespace: np-test
+spec:
+  podSelector:
+    matchLabels:
+      name: nginx
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+      namespaceSelector:
+        matchLabels:
+          team: np-test
+    ports:
+    - protocol: TCP
+      port: 80
+  egress:
+  - to:
+      namespaceSelector:
+        matchLabels:
+          team: np-test
+    ports:
+    - protocol: TCP
+      port: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - ipBlock:
+        cidr: 172.17.0.0/16
+        except:
+        - 172.17.1.0/24
+    - namespaceSelector:
+        matchLabels:
+          project: myproject
+    - podSelector:
+        matchLabels:
+          role: frontend
+    ports:
+    - protocol: TCP
+      port: 6379
+  egress:
+  - to:
+    - ipBlock:
+        cidr: 10.0.0.0/24
+    ports:
+    - protocol: TCP
+      port: 5978
+  ---
+  #the policy below denies all ingress/egress traffic to all pods in the namespace
+  apiVersion: networking.k8s.io/v1
+  kind: NetworkPolicy
+  metadata:
+    name: default-deny-ingress
+    namespace: deny-traffic
+  spec:
+    podSelector: {} # here we restrict all pods
+    policyTypes:
+    - Ingress 
+    - Egress
+    ingress: 
+    - {} # we specify no rules to allow any traffic
+    egress:
+    - {}
+    ---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: policy
+  namespace: foo
+spec:
+  podSelector:
+    matchLabels:
+      app: maintenance
+  policyTypes:
+  - Ingress
+  - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: policy-b
+  namespace: users-backend
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - {}
+  egress:
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: my-name
+    ports:
+    - protocol: TCP
+      port: 80

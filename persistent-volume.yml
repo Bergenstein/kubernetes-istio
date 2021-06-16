@@ -1,0 +1,35 @@
+#storage class:
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-disk
+provisioner: kubernetes.io/no-provisioner
+allowVolumeExpansion: true
+---
+#persistent volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  storageClassName: local-disk
+  accessModes:
+  - ReadWriteOnce
+  hostPath:
+    path: /somePath
+  capacity:
+    storage: 2Gi
+  persistentVolumeReclaimPolicy: Recycle #can also pick Retain or Delete (Delete for Cloud Storage only)
+---
+#persistent volume claim:
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: 22feb-pvc
+spec:
+  storageClassName: local-disk
+  resources:
+    requests:
+      storage: 500Mi
+  accessModes:
+  - ReadWriteOnce

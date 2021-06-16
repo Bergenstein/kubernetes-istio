@@ -1,0 +1,123 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""] 
+  resources: ["pods", "pod/log"] # allowing access to pods (metadata) and pod/log
+  verbs: ["get", "watch", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pod-reader-binding
+  namespace: default
+subjects:
+- kind: User
+  name: dev 
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-reader
+rules: 
+- apiGroups: ['']
+  verbs: ['watch','list','get']
+  resources: ['pods']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: binding
+  namespace: web
+subjects:
+- kind: ServiceAccount
+  name: webautomation
+  apiGroup: ''
+  namespace: web
+roleRef:
+  kind: ClusterRole
+  name: pod-reader
+  apiGroup: ''
+---
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: developer-app
+  namespace: blue
+rules:
+- apiGroups: ["apps", "extensions"] # interesting
+  resources: ["deployments"] # interesting
+  verbs: ["list", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: developer-app
+  namespace: blue
+subjects:
+- kind: User
+  name: dev-user
+  apiGroup: ""
+  namespace: blue
+roleRef:
+  kind: Role
+  name: developer-app
+  apiGroup: ""
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: clusterrole
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs:
+  - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: clusterrole
+subjects:
+- kind: User
+  name: michelle
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: clusterrole
+  apiGroup: ""
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: storage-admin
+rules:
+- apiGroups: [""]
+  resources:
+  - "persistentvolumes"
+  - "storageclasses"
+  verbs:
+  - "*"
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: michelle-storage-admin
+subjects:
+- kind: User
+  name: michelle
+  apiGroup: ""
+roleRef:
+  kind: ClusterRole
+  name: storage-admin
+  apiGroup: ""
+---

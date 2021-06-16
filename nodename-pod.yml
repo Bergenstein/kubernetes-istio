@@ -1,0 +1,12 @@
+#nodeName allows us to bypass scheduling entirely and simply assign
+#our pods to specific nodes by name.
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nodename-pod
+spec:
+  nodeName: israelbergenstein3c.mylabserver.com
+  containers:
+  - name: nginx
+    image: nginx 

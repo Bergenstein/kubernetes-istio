@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: my-name
+  template:
+    metadata:
+      labels:
+        name: my-name
+    spec:
+      tolerations:
+      - key: "job"
+        operator: "Equal"
+        value: "architect"
+        effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: education
+                operator: In
+                values:
+                - PHD
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+      restartPolicy: OnFailure
+  ---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: service
+  spec:
+    type: ClusterIP
+    selector:
+      name: my-name
+    ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 80

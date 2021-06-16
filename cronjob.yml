@@ -1,0 +1,31 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cron
+  namespace: 30march
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          tolerations:
+          - key: 'job'
+            operator: 'Equal'
+            value: 'architect'
+            effect: 'NoSchedule'
+          containers:
+          - name: nginx
+            image: nginx
+            ports:
+            - containerPort: 80
+            livenessProbe:
+              httpGet:
+                path: /
+                port: 80
+              initialDelaySeconds: 5
+              periodSeconds: 5
+          restartPolicy: OnFailure
+      backoffLimit: 3
+      parallelism: 2
+      completions: 2

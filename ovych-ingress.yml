@@ -1,0 +1,13 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ovych-ingress
+  namespace: kubernetes-dashboard
+spec:
+  rules:
+  - host: thais-rousseff.com
+    http:
+      paths: 
+      - backend:
+          serviceName: ovych-internal
+          servicePort: 80
