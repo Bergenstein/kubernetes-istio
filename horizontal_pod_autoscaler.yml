@@ -1,0 +1,19 @@
+apiVersion: "autoscaling/v2beta1"
+kind: "HorizontalPodAutoscaler"
+metadata:
+  name: "web-server-hpa-zxef"
+  namespace: "default"
+  labels:
+    app: "web-server"
+spec:
+  scaleTargetRef:
+    kind: "Deployment"
+    name: "web-server"
+    apiVersion: "apps/v1"
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: "Resource"
+    resource:
+      name: "cpu"
+      targetAverageUtilization: 80
